@@ -1,69 +1,91 @@
-# React + TypeScript + Vite
+# Hyperliquid Order App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A client-side React application built with Vite and TypeScript to interact with the Hyperliquid API for placing orders on the HyperEVM network, using Privy for secure wallet authentication.
 
-Currently, two official plugins are available:
+## Overview
+This app allows users to log in with a wallet (e.g., MetaMask), select a trading pair, and place limit orders on the Hyperliquid testnet or mainnet via the HyperEVM network. It leverages Privy for wallet management and the `@nktkas/hyperliquid` SDK for API integration.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+- Wallet authentication with Privy (embedded or external wallets like MetaMask).
+- Order placement for supported trading pairs (e.g., HYPE, BTC).
+- Real-time feedback on order status.
+- Configurable for HyperEVM testnet or mainnet.
 
-## Expanding the ESLint configuration
+## Prerequisites
+- Node.js (v18+)
+- MetaMask wallet
+- Hyperliquid testnet/mainnet network added to MetaMask
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Installation
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/your-username/hl-order-app.git
+   cd hl-order-app
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+2. **Install Dependencies**
+   ```bash
+   pnpm install
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+3. **Configure Environment**
+   - Create a `.env` file in the root directory:
+     ```
+     VITE_PRIVY_APP_ID=your_privy_app_id
+     ```
+   - Obtain `VITE_PRIVY_APP_ID` from [Privy Dashboard](https://dashboard.privy.io).
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+4. **Set Up Networks in MetaMask**
+   - **Testnet (Recommended for Development)**:
+     - Network Name: HyperEVM Testnet
+     - RPC URL: `https://rpc.hyperliquid-testnet.xyz/evm`
+     - Chain ID: 998
+     - Currency Symbol: HYPE
+     - Block Explorer: `https://explorer.hyperliquid-testnet.xyz/evm`
+   - **Mainnet**:
+     - Network Name: HyperEVM
+     - RPC URL: `https://rpc.hyperliquid.xyz/evm`
+     - Chain ID: 999
+     - Currency Symbol: HYPE
+     - Block Explorer: `https://explorer.hyperliquid.xyz/evm`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Configuration
+- **HyperEVM Network**: Configured in `src/main.tsx` under `supportedChains`. Switch `id` to 998 (testnet) or 999 (mainnet) and update `rpcUrls` accordingly.
+- **Privy Environment**: Set `VITE_PRIVY_APP_ID` in `.env`. Ensure `loginMethods` and `embeddedWallets` are adjusted in `main.tsx` based on wallet preferences.
+- **Testnet Mode**: Set `isTestnet: true` in `src/lib/hyperliquid.ts` for testing.
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Usage
+1. **Run the App**
+   ```bash
+   pnpm dev
+   ```
+2. **Log In**
+   - Open the app in your browser, click "Log In", and connect MetaMask or use an embedded wallet via Privy.
+3. **Place an Order**
+   - Enter a valid trading pair (e.g., `HYPE`), quantity (e.g., 10), and limit price (e.g., 0.02).
+   - Click "Place Order" or "Activate Account" if needed.
+4. **Verify**
+   - Check order status in the app and transactions on the Hyperliquid explorer.
+
+## Dependencies
+- **Frontend**: React, TypeScript, Vite, Tailwind CSS
+- **Wallet**: `@privy-io/react-auth`
+- **API**: `@nktkas/hyperliquid`, `ethers`
+- **Dev Tools**: `@types/react`, `@vitejs/plugin-react`
+
+## Troubleshooting
+- **Invalid Pair**: Debug `meta.universe` in the console to list available pairs.
+- **Account Activation**: Send 0.01 HYPE from the connected wallet to itself to activate the account.
+- **Wallet Mismatch**: Ensure MetaMask is connected by updating `main.tsx` login methods; clear cache if addresses switch.
+
+## Contributing
+Fork the repository, create a feature branch, and submit a pull request.
+
+## License
+MIT
+
+## Resources
+- [Hyperliquid Docs](https://hyperliquid.gitbook.io/hyperliquid-docs)
+- [Privy Docs](https://docs.privy.io)
+- [Hyperliquid Explorer](https://explorer.hyperliquid-testnet.xyz/evm)
