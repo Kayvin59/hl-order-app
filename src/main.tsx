@@ -10,7 +10,7 @@ createRoot(document.getElementById('root')!).render(
       appId={import.meta.env.VITE_PRIVY_APP_ID}
       config={{
         loginMethods: ['wallet'],
-        embeddedWallets: { createOnLogin: 'users-without-wallets' },
+        embeddedWallets: { createOnLogin: 'off' },
         appearance: { theme: 'light' },
         supportedChains: [
           {
@@ -22,8 +22,12 @@ createRoot(document.getElementById('root')!).render(
             id: 998,
             name: 'HyperEVM Testnet',
             nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
-            rpcUrls: { default: { http: ['https://rpc.hyperliquid-testnet.xyz/evm'] } },
-            blockExplorers: { default: { name: 'Hyperliquid Testnet Explorer', url: 'https://explorer.hyperliquid-testnet.xyz/evm' } },
+            rpcUrls: { 
+              default: { http: ['https://rpc.hyperliquid-testnet.xyz/evm'] },
+              fallback: { http: ['https://api.hyperliquid-testnet.xyz/'] },
+            },
+            
+            blockExplorers: { default: { name: 'Hyperliquid Testnet Explorer', url: 'https://app.hyperliquid-testnet.xyz/explorer' } },
           },
         ],
       }}
