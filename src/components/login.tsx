@@ -1,9 +1,11 @@
 import { usePrivy, useWallets } from '@privy-io/react-auth';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useClickAway } from 'react-use';
 import { truncateAddress } from '../utils';
 
 const LoginComponent = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const { login, authenticated, logout } = usePrivy();
   const { wallets } = useWallets();
@@ -11,6 +13,8 @@ const LoginComponent = () => {
 
   // Find the first wallet with 'walletConnect' type or fallback to the first wallet
   const activeWallet = wallets.find(w => w.walletClientType === 'walletConnect') || wallets[0];
+
+  useClickAway(dropdownRef, () => setIsDropdownOpen(false));
 
   return (
     <div className="flex justify-end items-center space-x-2">
@@ -23,7 +27,7 @@ const LoginComponent = () => {
         </button>
       ) : (
         <>
-          <div className="relative">
+          <div ref={dropdownRef} className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="relative flex items-center w-10 h-10 rounded-full border-2 border-teal-600 bg-teal-600 hover:border-white focus:ring-2 focus:ring-emerald-200"
