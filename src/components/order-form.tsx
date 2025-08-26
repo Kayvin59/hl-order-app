@@ -1,6 +1,8 @@
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useEffect, useState } from 'react';
 import { getMidPrice, placeOrder } from '../services/hyperliquidServices';
+import LeverageSlider from './leverage-slider';
+import StatusMessage from './status-messages';
 
 const OrderForm = () => {
   const [pair, setPair] = useState('HYPE-PERP');
@@ -10,13 +12,11 @@ const OrderForm = () => {
   const [status, setStatus] = useState('');
   const [leverage, setLeverage] = useState(1);
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
-  // const [maxLeverage, setMaxLeverage] = useState(50);
-
 
   const { authenticated } = usePrivy();
   const { wallets } = useWallets();
 
-  // Fetch current mid price for selected pair
+  // Fetch current mid price
   useEffect(() => {
     const fetchMidPrice = async () => {
       const price = await getMidPrice(pair);
@@ -28,22 +28,16 @@ const OrderForm = () => {
   // TODO: Fix leverage range
   // Fetch and set max leverage for selected pair
 /*   useEffect(() => {
-    const fetchLimits = async () => {
-      const maxLev = await getMaxLeverage(pair);
-      setLeverage((prev) => Math.min(prev, maxLev));
-      setMaxLeverage(maxLev);
-    };
-    fetchLimits();
-  }, [pair]); */
-
+    const fetchLimits = async
+ */
 
 
   return (
     <>
       <h2 className="text-center text-2xl font-light text-teal-600">Place Order</h2>
       <div className="max-w-md mx-auto bg-white p-6 border border-teal-500 rounded-lg shadow mt-6">
-        
-        {/* Trading Pair Selection */}
+
+        {/* Trading Pair */}
         <div className="mb-4">
           <label htmlFor="pair-selection" className="block mb-2 text-emerald-950">Trading Pair</label>
           <select
@@ -74,7 +68,7 @@ const OrderForm = () => {
           </button>
         </div>
 
-        {/* Quantity input */}
+        {/* Quantity */}
         <div className="mb-4">
           <label htmlFor="quantity-input" className="block mb-2">Quantity</label>
           <input
@@ -88,7 +82,7 @@ const OrderForm = () => {
           />
         </div>
 
-        {/* Price input */}
+        {/* Price */}
         <div className="mb-4">
           <label htmlFor="price-input" className="block mb-2">Limit Price</label>
           <input
@@ -102,47 +96,8 @@ const OrderForm = () => {
           />
         </div>
 
-        {/* 🔹 Leverage Slider */}
-        <div className="relative mb-6">
-          <label htmlFor="leverage-range" className="block mb-2">Leverage</label>
-          <div className="relative w-full">
-            <input
-              id="leverage-range"
-              type="range"
-              min="1"
-              max="50"
-              value={leverage}
-              onChange={(e) => setLeverage(Number(e.target.value))}
-              className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-teal-600"
-              style={{
-                background: `linear-gradient(to right, #0d9488 0%, #0d9488 ${(leverage - 1) / 49 * 100}%, #e5e7eb ${(leverage - 1) / 49 * 100}%, #e5e7eb 100%)`
-              }}
-            />
-
-            {/* Tooltip */}
-            <div
-              className="absolute -bottom-6 px-2 py-1 text-xs font-semibold bg-teal-600 text-white rounded shadow transition-all"
-              style={{
-                left: `calc(${((leverage - 1) / 49) * 100}% - 10px)`,
-                minWidth: "32px",
-                textAlign: "center"
-              }}
-            >
-              {leverage}x
-            </div>
-          </div>
-
-          {/* Static labels under slider */}
-          <div className="flex justify-between mt-7 text-sm text-gray-500">
-            <span>1x</span>
-            <span>10x</span>
-            <span>20x</span>
-            <span>30x</span>
-            <span>40x</span>
-            <span>50x</span>
-          </div>
-        </div>
-
+        {/* LeverageSlider */}
+        <LeverageSlider leverage={leverage} onChange={setLeverage} />
 
         {/* Action button */}
         <button
@@ -155,26 +110,8 @@ const OrderForm = () => {
           Place Order
         </button>
 
-        {/* Status messages */}
-        {status && (
-          <div className={`mt-4 text-center p-2 rounded ${status.includes('success') ? 'bg-teal-100 text-teal-700' : 'bg-red-100 text-red-700'}`}>
-            {status.includes('success') ? (
-              <p>
-                ✅ Order placed successfully.{' '}
-                <a
-                  href={status.split('|')[1]}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline text-teal-700"
-                >
-                  View on Explorer
-                </a>
-              </p>
-            ) : (
-              <p>{status}</p>
-            )}
-          </div>
-        )}
+        {/* StatusMessage */}
+        <StatusMessage status={status} />
       </div>
     </>
   );
