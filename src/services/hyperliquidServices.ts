@@ -1,3 +1,4 @@
+import * as hl from '@nktkas/hyperliquid';
 import type { PerpsMetaAndAssetCtxs, PerpsUniverse } from '@nktkas/hyperliquid/types';
 import type { ConnectedWallet } from '@privy-io/react-auth';
 import { ethers } from 'ethers';
@@ -6,18 +7,11 @@ import { initializeHyperliquid } from '../lib/hyperliquid';
 
 
 /**
- * Place an order on Hyperliquid
+ * Place an order
  */
 
 export const placeOrder = async (
-  authenticated: boolean,
-  wallets: ConnectedWallet[],
-  pair: string,
-  isSelected: { buy: boolean; sell: boolean },
-  price: string,
-  quantity: string,
-  setStatus: (msg: string) => void
-) => {
+authenticated: boolean, wallets: ConnectedWallet[], pair: string, isSelected: { buy: boolean; sell: boolean; }, price: string, quantity: string, setStatus: (msg: string) => void, leverage: number) => {
   if (!authenticated || !wallets.length) {
     setStatus('Please log in and connect a wallet');
     return;
@@ -58,6 +52,7 @@ export const placeOrder = async (
     // Find correct coin index for selected pair
     const coinIndex = meta.universe.findIndex((u: PerpsUniverse) => `${u.name}-PERP` === pair);
     console.log('Coin Index for HYPE-PERP:', coinIndex);
+    console.log('Selected Leverage:', infoClient.marginTable);
 
     if (coinIndex === -1) {
       setStatus('Invalid trading pair');
@@ -77,6 +72,13 @@ export const placeOrder = async (
       return;
     }
 
+    // Update leverage
+    await exchClient.updateLeverage({
+      asset: coinIndex,
+      isCross: true,
+      leverage,
+    });
+
     // Place the actual order
     const result = await exchClient.order({
       orders: [
@@ -92,9 +94,67 @@ export const placeOrder = async (
       grouping: 'na',
     });
 
-    setStatus('Order placed successfully: ' + JSON.stringify(result));
+    const firstStatus = result?.response?.data?.statuses?.[0];
+    let txHash: number | undefined;
+
+    if (firstStatus && "resting" in firstStatus) {
+      txHash = firstStatus.resting.oid;
+    } else if (firstStatus && "filled" in firstStatus) {
+      txHash = firstStatus.filled.oid;
+    }
+
+    if (txHash) {
+      setStatus(`success|https://app.hyperliquid-testnet.xyz/explorer/tx/${txHash}`);
+    }
   } catch (error) {
     console.error('Error placing order:', error);
     setStatus('Failed to place order: ' + (error as Error).message);
+  }
+};
+
+
+// Fetch mid price for a given coin
+export const getMidPrice = async (pair: string): Promise<number | null> => {
+  try {
+    const transport = new hl.HttpTransport({ isTestnet: true });
+    const infoClient = new hl.InfoClient({ transport });
+
+    const mids = await infoClient.allMids();
+    const coin = pair.replace("-PERP", "");
+    const midPrice = mids[coin];
+
+    console.log(`Mid price for ${coin}:`, midPrice);
+    return midPrice ? parseFloat(midPrice) : null;
+  } catch (err) {
+    console.error("Failed to fetch mid price:", err);
+    return null;
+  }
+};
+
+
+// Fetch max leverage for a given coin
+export const getMaxLeverage = async (pair: string): Promise<number> => {
+  try {
+    console.log("🔍 Fetching max leverage for:", pair);
+    const transport = new hl.HttpTransport({ isTestnet: true });
+    const infoClient = new hl.InfoClient({ transport });
+
+    const meta = await infoClient.meta();
+    const coinIndex = meta.universe.findIndex(
+      (u: PerpsUniverse) => `${u.name}-PERP` === pair
+    );
+    if (coinIndex === -1) throw new Error(`Coin not found for ${pair}`);
+
+    // Fetch margin table by coin index
+    const marginTable = await infoClient.marginTable({ id: coinIndex });
+    console.log("Margin Table:", marginTable);
+    // irst tier = max leverage
+    const firstTier = marginTable.marginTiers[0];
+    const maxLev = firstTier.maxLeverage;
+
+    return maxLev;
+  } catch (err) {
+    console.error("Failed to fetch max leverage:", err);
+    return 50;
   }
 };

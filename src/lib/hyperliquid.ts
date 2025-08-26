@@ -44,7 +44,7 @@ export const initializeHyperliquid = async (
   });
   console.log("Approve Agent Response:", approveAgentResponse);
 
-  // Transfer 10 USD from master to Agent Wallet using usdSend (SDK-typed, no hyperliquidChain/signatureChainId here)
+  // Transfer 10 USD from master to Agent Wallet using usdSend
   const fundResponse = await userExchClient.usdSend({
     destination: agentAddress,
     amount: "10",
