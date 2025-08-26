@@ -30,7 +30,7 @@ importers:
         specifier: ^6.15.0
         version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       lucide-react:
-        specifier: ^0.542.0
+        specifier: 2.15.4
         version: 0.542.0(react@19.1.1)
       react:
         specifier: ^19.1.1
@@ -58,7 +58,7 @@ importers:
         specifier: ^9.32.0
         version: 9.33.0
       '@types/react':
-        specifier: ^19.1.9
+        specifier: ^0.542.0
         version: 19.1.9
       '@types/react-dom':
         specifier: ^19.1.7

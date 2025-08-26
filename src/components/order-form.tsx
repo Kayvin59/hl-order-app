@@ -1,3 +1,4 @@
+import PriceChart from '@/components/price-chart';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useEffect, useState } from 'react';
 import { getMidPrice, placeOrder } from '../services/hyperliquidServices';
@@ -51,6 +52,9 @@ const OrderForm = () => {
             <option value="SOL-PERP" disabled>SOL-PERP</option>
           </select>
         </div>
+
+        {/* Price chart */}
+        <PriceChart pair={pair} />
 
         {/* Buy / Sell buttons */}
         <div className="mb-4 flex space-x-2">
